@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Master</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;font-family:Arial,sans-serif;
+ background:#0c1020;color:#f5f5ff;
+}
+header{
+ padding:25px 7%;background:linear-gradient(120deg,#24245a,#643bd0);
+ display:flex;justify-content:space-between;align-items:center;
+ flex-wrap:wrap;gap:15px;
+}
+.logo{font-size:25px;font-weight:bold}
+.logo span{color:#bcb0ff}
+.container{max-width:1100px;margin:auto;padding:25px 18px}
+.hero{
+ padding:30px;border-radius:22px;
+ background:linear-gradient(120deg,#25275a,#4930a1);
+ margin-bottom:25px;
+}
+.hero h1{font-size:32px;margin:8px 0}
+.hero p{color:#d5d3ed;line-height:1.6}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}
+.stat,.card{
+ background:#191e35;border:1px solid #303754;
+ padding:18px;border-radius:16px;
+}
+.stat strong{font-size:25px;color:#b6a3ff;display:block}
+nav{display:flex;gap:9px;flex-wrap:wrap;margin:22px 0}
+nav button,.btn{
+ border:0;padding:12px 17px;border-radius:11px;
+ background:#292e4b;color:white;cursor:pointer;font-weight:bold;
+}
+nav button.active,.btn{background:#7652e8}
+button:hover{filter:brightness(1.2)}
+h2{margin-top:25px}
+.levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
+.level{
+ background:#191e35;border:1px solid #303754;
+ padding:17px;border-radius:15px;cursor:pointer;
+ transition:.2s;
+}
+.level:hover,.level.selected{border:1px solid #9d83ff;transform:translateY(-3px)}
+.level h3{color:#b9a6ff;font-size:23px;margin:5px 0}
+.level small{color:#a9afca}
+.progress{height:8px;background:#303653;border-radius:20px;margin-top:12px;overflow:hidden}
+.progress div{height:100%;background:#9b7aff;width:0}
+.lesson{margin-top:20px;padding:23px;background:#191e35;border-radius:18px;border:1px solid #303754}
+.word{
+ display:flex;justify-content:space-between;gap:10px;
+ padding:12px;border-bottom:1px solid #303754;
+}
+.word b{color:#bcaaff}
+.quiz-option{
+ display:block;width:100%;text-align:left;margin:10px 0;
+ padding:14px;border:1px solid #424969;border-radius:12px;
+ background:#252b46;color:white;cursor:pointer;
+}
+.quiz-option.correct{background:#176b4c}
+.quiz-option.wrong{background:#8b343e}
+input{
+ width:100%;padding:14px;border-radius:10px;
+ border:1px solid #454c6c;background:#191e35;color:white;
+ margin:8px 0;
+}
+.hidden{display:none}
+#message{margin-top:12px;line-height:1.5}
+footer{text-align:center;color:#858ba8;padding:30px}
+@media(max-width:550px){
+ .stats{grid-template-columns:1fr 1fr}
+ .hero h1{font-size:25px}
+ header{padding:20px}
+}
+</style>
+</head>
+<body>
+
+<header>
+ <div class="logo">🌍 English <span>Master</span></div>
+ <div>⭐ <span id="points">0</span> баллов</div>
+</header>
+
+<div class="container">
+
+<section class="hero">
+ <div>🚀 ТВОЁ АНГЛИЙСКОЕ ПРИКЛЮЧЕНИЕ</div>
+ <h1>Изучай английский легко!</h1>
+ <p>Начни с нуля, проходи уроки, выполняй задания, открывай новые уровни и становись увереннее в английском языке.</p>
+ <button class="btn" onclick="showTab('courses')">Начать обучение →</button>
+
+ <div class="stats">
+  <div class="stat"><strong id="done">0</strong>Уроков пройдено</div>
+  <div class="stat"><strong id="percent">0%</strong>Прогресс</div>
+  <div class="stat"><strong id="streak">🔥 0</strong>Мои достижения</div>
+ </div>
+</section>
+
+<nav>
+ <button class="active" onclick="showTab('courses',this)">📚 Курсы</button>
+ <button onclick="showTab('vocabulary',this)">📖 Словарь</button>
+ <button onclick="showTab('test',this)">🧠 Тест</button>
+ <button onclick="showTab('profile',this)">🏆 Прогресс</button>
+</nav>
+
+<section id="courses">
+ <h2>Выбери свой уровень</h2>
+ <p style="color:#a9afca">7 уровней — от самого первого слова до продвинутого английского.</p>
+ <div class="levels" id="levels"></div>
+ <div id="lessonArea"></div>
+</section>
+
+<section id="vocabulary" class="hidden">
+ <h2>📖 Мой словарь</h2>
+ <input id="search" placeholder="Поиск английского слова..." oninput="renderWords()">
+ <div class="card" id="wordList"></div>
+</section>
+
+<section id="test" class="hidden">
+ <h2>🧠 Проверь свои знания</h2>
+ <div class="lesson">
+  <div id="testQuestion"></div>
+  <div id="testOptions"></div>
+  <div id="testMessage"></div>
+  <button class="btn" onclick="nextTest()">Следующий вопрос →</button>
+ </div>
+</section>
+
+<section id="profile" class="hidden">
+ <h2>🏆 Мой прогресс</h2>
+ <div class="card">
+  <h3>Твои результаты</h3>
+  <p>Пройдено уроков: <b id="profileDone">0</b></p>
+  <p>Набрано баллов: <b id="profilePoints">0</b></p>
+  <p>Достижения: <b id="profileAchievements">0</b></p>
+  <div class="progress"><div id="totalProgress"></div></div>
+  <h3>🎖️ Достижения</h3>
+  <p id="achievements">Пока нет достижений. Начни обучение!</p>
+  <button class="btn" onclick="resetProgress()">Сбросить прогресс</button>
+ </div>
+</section>
+
+</div>
+<footer>ENGLISH MASTER © 2026 | Учись каждый день! 💜</footer>
+
+<script>
+const courses = [
+ {name:"A0",title:"Абсолютный ноль",desc:"Алфавит и первые слова",lessons:[
+  {title:"Английский алфавит",theory:"В английском алфавите 26 букв. Начни с изучения их названий и произношения.",words:[["Hello","Привет"],["Goodbye","До свидания"],["Yes","Да"],["No","Нет"]],q:"Что означает Hello?",opts:["Пока","Привет","Спасибо"],answer:1},
+  {title:"Первые знакомства",theory:"Чтобы познакомиться, используй фразу My name is... — Меня зовут...",words:[["My name is","Меня зовут"],["I am","Я"],["Friend","Друг"],["Nice to meet you","Приятно познакомиться"]],q:"Как сказать «Меня зовут»?",opts:["Good morning","My name is","Thank you"],answer:1}
+ ]},
+ {name:"A1",title:"Начальный уровень",desc:"Простые предложения",lessons:[
+  {title:"Местоимения",theory:"I — я, You — ты/вы, He — он, She — она, We — мы, They — они. Например: I am a student.",words:[["I","Я"],["You","Ты / Вы"],["He","Он"],["She","Она"],["We","Мы"],["They","Они"]],q:"Как переводится She?",opts:["Он","Она","Мы"],answer:1},
+  {title:"Глагол To be",theory:"Am используется с I, is — с he/she/it, are — с you/we/they.",words:[["I am","Я есть / Я"],["He is","Он"],["You are","Ты"],["Student","Студент"]],q:"Выбери правильный вариант: She ___ happy.",opts:["am","is","are"],answer:1}
+ ]},
+ {name:"A2",title:"Базовый уровень",desc:"Повседневное общение",lessons:[
+  {title:"Present Simple",theory:"Present Simple используется для привычек и регулярных действий. I work. She works. С he/she/it обычно добавляется -s.",words:[["Work","Работать"],["Study","Учиться"],["Every day","Каждый день"],["Usually","Обычно"]],q:"He ___ English every day.",opts:["study","studies","studying"],answer:1},
+  {title:"Вопросы",theory:"В Present Simple часто используем Do и Does. Do you speak English? Does he work?",words:[["What","Что"],["Where","Где"],["When","Когда"],["Why","Почему"]],q:"___ you like music?",opts:["Do","Does","Is"],answer:0}
+ ]},
+ {name:"B1",title:"Средний уровень",desc:"Свободнее говорим",lessons:[
+  {title:"Past Simple",theory:"Past Simple описывает завершённые действия в прошлом. Правильные глаголы обычно получают окончание -ed. Например: I played.",words:[["Yesterday","Вчера"],["Visited","Посетил"],["Played","Играл"],["Went","Пошёл"]],q:"I ___ to school yesterday.",opts:["go","went","going"],answer:1},
+  {title:"Future Simple",theory:"Future Simple образуется с помощью will + глагол. I will learn English — Я буду изучать английский.",words:[["Tomorrow","Завтра"],["Future","Будущее"],["Will","Буду"],["Soon","Скоро"]],q:"I ___ travel tomorrow.",opts:["will","did","am"],answer:0}
+ ]},
+ {name:"B2",title:"Выше среднего",desc:"Сложные конструкции",lessons:[
+  {title:"Present Perfect",theory:"Present Perfect: have/has + третья форма глагола. Используется для связи прошлого с настоящим.",words:[["Already","Уже"],["Never","Никогда"],["Ever","Когда-либо"],["Experience","Опыт"]],q:"I have ___ my homework.",opts:["finish","finished","finishing"],answer:1},
+  {title:"Passive Voice",theory:"Пассивный залог: объект получает действие. Формула: be + третья форма глагола.",words:[["Built","Построен"],["Written","Написан"],["Made","Сделан"],["Created","Создан"]],q:"The book was ___ by him.",opts:["write","written","writing"],answer:1}
+ ]},
+ {name:"C1",title:"Продвинутый",desc:"Сложная грамматика",lessons:[
+  {title:"Conditionals",theory:"Conditionals — условные предложения. Third Conditional: If + Past Perfect, would have + V3. Используется для воображаемых ситуаций в прошлом.",words:[["Unless","Если не"],["Although","Хотя"],["Suppose","Предположим"],["Otherwise","Иначе"]],q:"If I had studied, I ___ passed.",opts:["will have","would have","would"],answer:1},
+  {title:"Reported Speech",theory:"Косвенная речь передаёт чужие слова. Например: He said that he was tired.",words:[["Reported speech","Косвенная речь"],["Said","Сказал"],["Told","Сообщил"],["Explained","Объяснил"]],q:"He said he ___ tired.",opts:["is","was","be"],answer:1}
+ ]},
+ {name:"C2",title:"Мастерство",desc:"Почти свободное владение",lessons:[
+  {title:"Идиомы",theory:"Идиомы — устойчивые выражения, смысл которых не всегда можно понять дословно.",words:[["Break the ice","Разрядить обстановку"],["Piece of cake","Проще простого"],["Under the weather","Нездоровиться"],["Once in a blue moon","Очень редко"]],q:"Что означает Piece of cake?",opts:["Кусок торта","Очень сложно","Проще простого"],answer:2},
+  {title:"Продвинутая лексика",theory:"На уровне C2 важно понимать оттенки значений слов, стиль, контекст и сложные тексты.",words:[["Nevertheless","Тем не менее"],["Furthermore","Более того"],["Consequently","Следовательно"],["Substantial","Значительный"]],q:"Что означает Furthermore?",opts:["Более того","Однако","Возможно"],answer:0}
+ ]}
+];
+
+let saved=JSON.parse(localStorage.getItem("englishMaster")||'{"done":[],"points":0}');
+let selectedLevel=0,selectedLesson=0,testIndex=0,testScore=0,answered=false;
+
+function save(){
+ localStorage.setItem("englishMaster",JSON.stringify(saved));
+ updateStats();
+}
+function updateStats(){
+ let total=courses.reduce((n,c)=>n+c.lessons.length,0);
+ let done=saved.done.length;
+ document.getElementById("points").textContent=saved.points;
+ document.getElementById("done").textContent=done;
+ document.getElementById("percent").textContent=Math.round(done/total*100)+"%";
+ document.getElementById("streak").textContent="🔥 "+Math.floor(done/2);
+ document.getElementById("profileDone").textContent=done;
+ document.getElementById("profilePoints").textContent=saved.points;
+ document.getElementById("totalProgress").style.width=(done/total*100)+"%";
+ let achievements=[];
+ if(done>=1)achievements.push("🥉 Первые шаги");
+ if(done>=5)achievements.push("🥈 Ученик");
+ if(done>=10)achievements.push("🥇 Мастер уроков");
+ if(done===total)achievements.push("🏆 English Master");
+ document.getElementById("profileAchievements").textContent=achievements.length;
+ document.getElementById("achievements").textContent=achievements.join(" • ")||"Пока нет достижений";
+}
+function renderLevels(){
+ document.getElementById("levels").innerHTML=courses.map((c,i)=>{
+ let completed=c.lessons.filter((l,j)=>saved.done.includes(i+"-"+j)).length;
+ return `<div class="level ${selectedLevel===i?'selected':''}" onclick="selectLevel(${i})">
+ <h3>${c.name}</h3><b>${c.title}</b><p><small>${c.desc}</small></p>
+ <div class="progress"><div style="width:${completed/c.lessons.length*100}%"></div></div>
+ <small>${completed}/${c.lessons.length} уроков</small>
+ </div>`;
+ }).join("");
+}
+function selectLevel(i){
+ selectedLevel=i;selectedLesson=0;renderLevels();renderLesson();
+}
+function renderLesson(){
+ let c=courses[selectedLevel],l=c.lessons[selectedLesson];
+ document.getElementById("lessonArea").innerHTML=`
+ <div class="lesson">
+ <small style="color:#bcaaff">${c.name} • Урок ${selectedLesson+1}</small>
+ <h2>${l.title}</h2><p style="line-height:1.7">${l.theory}</p>
+ <h3>📖 Новые слова</h3>
+ ${l.words.map(w=>`<div class="word"><b>${w[0]}</b><span>${w[1]}</span></div>`).join("")}
+ <h3>🧠 Проверь себя</h3><p>${l.q}</p>
+ <div id="lessonOptions">${l.opts.map((o,i)=>`<button class="quiz-option" onclick="checkLesson(${i})">${o}</button>`).join("")}</div>
+ <div id="lessonMessage"></div>
+ <button class="btn" style="margin-top:15px" onclick="nextLesson()">Следующий урок →</button>
+ </div>`;
+}
+function checkLesson(i){
+ let l=courses[selectedLevel].lessons[selectedLesson];
+ let buttons=document.querySelectorAll("#lessonOptions button");
+ buttons.forEach((b,j)=>{
+  b.disabled=true;
+  if(j===l.answer)b.classList.add("correct");
+  if(j===i&&i!==l.answer)b.classList.add("wrong");
+ });
+ let key=selectedLevel+"-"+selectedLesson;
+ if(i===l.answer){
+  document.getElementById("lessonMessage").innerHTML="✅ Правильно! Отличная работа!";
+  if(!saved.done.includes(key)){saved.done.push(key);saved.points+=10;save();renderLevels();}
+ }else{
+  document.getElementById("lessonMessage").innerHTML="❌ Не совсем правильно. Попробуй запомнить правильный ответ.";
+ }
+}
+function nextLesson(){
+ if(selectedLesson<courses[selectedLevel].lessons.length-1)selectedLesson++;
+ else if(selectedLevel<courses.length-1){selectedLevel++;selectedLesson=0;}
+ else{alert("Поздравляем! Ты прошёл все уроки! 🏆");return;}
+ renderLevels();renderLesson();
+}
+function showTab(id,btn){
+ document.querySelectorAll(".container>section").forEach(s=>s.classList.add("hidden"));
+ document.getElementById(id).classList.remove("hidden");
+ document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+ if(btn)btn.classList.add("active");
+ if(id==="vocabulary")renderWords();
+ if(id==="profile")updateStats();
+}
+function allWords(){
+ return courses.flatMap(c=>c.lessons.flatMap(l=>l.words));
+}
+function renderWords(){
+ let q=(document.getElementById("search").value||"").toLowerCase();
+ let words=allWords().filter(w=>w[0].toLowerCase().includes(q)||w[1].toLowerCase().includes(q));
+ document.getElementById("wordList").innerHTML=words.map(w=>`<div class="word"><b>${w[0]}</b><span>${w[1]}</span></div>`).join("")||"Слово не найдено";
+}
+let testQuestions=[
+ ["What is the translation of Apple?",["Яблоко","Банан","Апельсин"],0],
+ ["What does Beautiful mean?",["Умный","Красивый","Большой"],1],
+ ["Choose: I ___ a student.",["is","are","am"],2],
+ ["What is the past of Go?",["Goed","Went","Gone"],1],
+ ["What does Nevertheless mean?",["Тем не менее","Например","Поэтому"],0],
+ ["She ___ English every day.",["study","studies","studying"],1],
+ ["What does Tomorrow mean?",["Вчера","Сегодня","Завтра"],2]
+];
+function nextTest(){
+ answered=false;
+ let q=testQuestions[testIndex%testQuestions.length];
+ document.getElementById("testQuestion").innerHTML=`<b>Вопрос ${testIndex+1}</b><h3>${q[0]}</h3>`;
+ document.getElementById("testOptions").innerHTML=q[1].map((o,i)=>`<button class="quiz-option" onclick="answerTest(${i})">${o}</button>`).join("");
+ document.getElementById("testMessage").textContent="";
+}
+function answerTest(i){
+ if(answered)return;answered=true;
+ let q=testQuestions[testIndex%testQuestions.length];
+ let buttons=document.querySelectorAll("#testOptions button");
+ buttons.forEach((b,j)=>{
+  b.disabled=true;
+  if(j===q[2])b.classList.add("correct");
+  if(j===i&&i!==q[2])b.classList.add("wrong");
+ });
+ if(i===q[2]){
+  testScore++;saved.points+=5;save();
+  document.getElementById("testMessage").textContent="✅ Правильно! +5 баллов";
+ }else{
+  document.getElementById("testMessage").textContent="❌ Правильный ответ: "+q[1][q[2]];
+ }
+ testIndex++;
+}
+function resetProgress(){
+ if(confirm("Ты действительно хочешь сбросить весь прогресс?")){
+ saved={done:[],points:0};save();renderLevels();renderLesson();
+ }
+}
+renderLevels();renderLesson();nextTest();updateStats();
+</script>
+</body>
+</html>
